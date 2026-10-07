@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка...</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f1115;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- Общий стиль Cookie-экранов --- */
+        .cookie-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #e0e0e0;
+            padding: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f1115;
+            /* Мягкое исчезновение для "незаметности" */
+            animation: fadeIn 0.25s ease;
+            z-index: 100;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .cookie-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 15px rgba(255, 165, 0, 0.5));
+        }
+
+        h1 {
+            color: #ff4d4d;
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+        }
+
+        p {
+            max-width: 600px;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-accept {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+        }
+
+        .btn-decline {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .link-agreement {
+            color: #6c7a89;
+            font-size: 14px;
+            background-color: #1c2128;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* --- Скример --- */
+        #screamer-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background-color: #000;
+        }
+
+        #screamer-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Экран "Вы свободны" --- */
+        #free-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: #0f1115;
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10000;
+            text-align: center;
+        }
+
+        #free-screen h1 {
+            color: #00c6ff;
+            text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
+        }
+
+        /* Блокировка */
+        .locked * {
+            cursor: none !important;
+            user-select: none !important;
+            pointer-events: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== ЭКРАН 1: Первый выбор ========== -->
+    <div class="cookie-screen" id="cookie1">
+        <div class="cookie-icon">🍪</div>
+        <h1>ПРИНЯТЬ ФАЙЛЫ COOKIE?</h1>
+        <p>Для персонализации контента и улучшения работы сайта мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с нашей политикой использования cookie.</p>
+        <div class="buttons">
+            <button class="btn-accept" id="accept1">ПРИНЯТЬ</button>
+            <button class="btn-decline" id="decline1">ОТКЛОНИТЬ</button>
+        </div>
+        <div class="link-agreement">Пользовательское соглашение</div>
+    </div>
+
+    <!-- ========== ЭКРАН 2: Второй выбор (после "перехода") ========== -->
+    <div class="cookie-screen" id="cookie2" style="display: none;">
+        <div class="cookie-icon">🍪</div>
+        <h1>ПРИНЯТЬ ФАЙЛЫ COOKIE?</h1>
+        <p>Для персонализации контента и улучшения работы сайта мы используем файлы cookie. Продолжая использовать сайт, вы соглашаетесь с нашей политикой использования cookie.</p>
+        <div class="buttons">
+            <button class="btn-accept" id="accept2">ПРИНЯТЬ</button>
+            <button class="btn-decline" id="decline2">ОТКЛОНИТЬ</button>
+        </div>
+        <div class="link-agreement">Пользовательское соглашение</div>
+    </div>
+
+    <!-- ========== Скример ========== -->
+    <div id="screamer-screen">
+        <video id="screamer-video" src="https://www.w3schools.com/html/mov_bbb.mp4" preload="auto" muted playsinline loop></video>
+    </div>
+
+    <!-- ========== Экран "Вы свободны" ========== -->
+    <div id="free-screen">
+        <h1>Вы свободны...</h1>
+    </div>
+
+    <script>
+        const cookie1 = document.getElementById('cookie1');
+        const cookie2 = document.getElementById('cookie2');
+        const screamerScreen = document.getElementById('screamer-screen');
+        const video = document.getElementById('screamer-video');
+        const freeScreen = document.getElementById('free-screen');
+
+        let isRunning = false;
+
+        // Страшный звук (если видео без звука)
+        const audioSrc = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+
+        // ============================================================
+        // НЕЗАМЕТНЫЙ ПЕРЕХОД
+        // Меняем URL в адресной строке через history.pushState,
+        // но саму страницу не перезагружаем — просто показываем другой экран.
+        // ============================================================
+        function fakeNavigate(url, title) {
+            try {
+                // Меняем URL без перезагрузки
+                history.pushState({}, title, url);
+                // Меняем заголовок вкладки
+                document.title = title;
+            } catch (e) {
+                // Если браузер блокирует (например, file://), просто игнорируем
+                console.log("Не удалось изменить URL:", e);
+            }
+        }
+
+        // --- ШАГ 1: Первый "Принять" → незаметный переход на "другой сайт" ---
+        document.getElementById('accept1').addEventListener('click', function() {
+            // Мгновенно подменяем экран, без визуального "мигания"
+            cookie1.style.display = 'none';
+            cookie2.style.display = 'flex';
+
+            // Незаметно меняем URL и заголовок
+            fakeNavigate('/Screamer/', 'Screamer — Проверка');
+        });
+
+        // --- ШАГ 2: Второй "Принять" → СКРИМЕР ---
+        document.getElementById('accept2').addEventListener('click', function() {
+            if (isRunning) return;
+            isRunning = true;
+
+            cookie2.style.display = 'none';
+            screamerScreen.style.display = 'block';
+            document.body.classList.add('locked');
+
+            // Ещё раз меняем URL, чтобы выглядело как "страница скримера"
+            fakeNavigate('/Screamer/screamer.html', '⚠️');
+
+            video.currentTime = 0;
+            video.muted = false;
+            const playPromise = video.play();
+
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    // Если браузер блокирует звук — играем без звука + отдельное аудио
+                    video.muted = true;
+                    video.play();
+                    const audio = new Audio(audioSrc);
+                    audio.volume = 1.0;
+                    audio.loop = true;
+                    audio.play().catch(err => console.log("Аудио заблокировано:", err));
+                });
+            }
+        });
+
+        // --- ОТКЛОНИТЬ на любом экране → "Вы свободны" ---
+        function showFree() {
+            cookie1.style.display = 'none';
+            cookie2.style.display = 'none';
+            screamerScreen.style.display = 'none';
+            document.body.classList.remove('locked');
+            freeScreen.style.display = 'flex';
+        }
+
+        document.getElementById('decline1').addEventListener('click', showFree);
+        document.getElementById('decline2').addEventListener('click', showFree);
+
+        // --- Блокировка выхода во время скримера ---
+        window.addEventListener('contextmenu', e => {
+            if (isRunning) e.preventDefault();
+        });
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (isRunning) {
+                    isRunning = false;
+                    document.body.classList.remove('locked');
+                    video.pause();
+                    screamerScreen.style.display = 'none';
+                    freeScreen.style.display = 'flex';
+                    freeScreen.querySelector('h1').textContent = "Вы вышли. Закройте вкладку, чтобы уйти полностью.";
+                }
+                return;
+            }
+            if (isRunning) {
+                if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.ctrlKey && e.key === 'w') || (e.altKey && e.key === 'F4')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', e => {
+            if (isRunning) e.preventDefault();
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
